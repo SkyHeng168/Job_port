@@ -10,4 +10,6 @@ public interface IAdminService {
     AdminRespond createAdmin(AdminRequest adminRequest);
     AdminRespond updateAdmin(Long id, AdminRequest adminRequest);
     void deleteAdmin(Long id);
+
+    String verifyAdmin(AdminRequest adminRequest);
 }

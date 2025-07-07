@@ -19,7 +19,7 @@ public class Admin {
     @Column(length = 100,  nullable = false, unique = true)
     private String username;
 
-    @Column(length = 10,  nullable = false)
+    @Column(length = 1000,  nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)

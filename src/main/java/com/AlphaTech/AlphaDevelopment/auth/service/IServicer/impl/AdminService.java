@@ -7,9 +7,14 @@ import com.AlphaTech.AlphaDevelopment.auth.service.IServicer.IAdminService;
 import com.AlphaTech.AlphaDevelopment.excption.customException.ResourceAlreadyExistsException;
 import com.AlphaTech.AlphaDevelopment.excption.customException.ResourceNotFoundException;
 import com.AlphaTech.AlphaDevelopment.model.Admin;
+import com.AlphaTech.AlphaDevelopment.utils.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +26,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AdminService implements IAdminService {
     private final AdminRepository adminRepository;
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Override
     public List<AdminRespond> findAll() {
@@ -37,7 +45,7 @@ public class AdminService implements IAdminService {
         }
         Admin admin = Admin.builder()
                 .username(adminRequest.username())
-                .password(adminRequest.password())
+                .password(encoder.encode(adminRequest.password()))
                 .role(adminRequest.role())
                 .build();
         Admin savedAdmin = adminRepository.save(admin);
@@ -49,7 +57,7 @@ public class AdminService implements IAdminService {
         Admin exitingAdmin = adminRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin Not Found"));
         exitingAdmin.setUsername(adminRequest.username());
-        exitingAdmin.setPassword(adminRequest.password());
+        exitingAdmin.setPassword(encoder.encode(adminRequest.password()));
         exitingAdmin.setRole(adminRequest.role());
         Admin updatedAdmin = adminRepository.save(exitingAdmin);
         return AdminRespond.convert(updatedAdmin);
@@ -60,5 +68,19 @@ public class AdminService implements IAdminService {
         Admin findAdmin = adminRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin Not Found"));
         adminRepository.delete(findAdmin);
+    }
+
+    @Override
+    public String verifyAdmin(AdminRequest adminRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        adminRequest.username(),
+                        adminRequest.password()
+                )
+        );
+        if (authentication.isAuthenticated()) {
+            return jwtService.generateToken(adminRequest.username());
+        }
+        return "error login";
     }
 }

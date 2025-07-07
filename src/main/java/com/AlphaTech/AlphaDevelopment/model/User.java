@@ -19,30 +19,38 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(length = 100, nullable = false)
     private String firstName;
-    @Column(length = 100,  nullable = false)
+
+    @Column(length = 100, nullable = false)
     private String lastName;
 
+    @Column(length = 255)
     private String profile;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 10)
     private Gender gender;
+
     @Column(nullable = false)
     private LocalDate birthDate;
-    @Column(length = 15, nullable = false)
+
+    @Column(length = 20, nullable = false)
     private String phoneNumber;
 
     @Column(length = 100, nullable = false, unique = true)
     private String email;
-    @Column(length = 15, nullable = false)
+
+    @Column(length = 255, nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(length = 20, nullable = false)
     private UserRole role = UserRole.SEEKER;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
 }
