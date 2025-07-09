@@ -11,5 +11,8 @@ public interface IAdminService {
     AdminRespond updateAdmin(Long id, AdminRequest adminRequest);
     void deleteAdmin(Long id);
 
+    AdminRespond getAdminByUsername(String username);
+    AdminRespond getAdminByRole(String role);
+    AdminRespond getAdmin(Long id);
     String verifyAdmin(AdminRequest adminRequest);
 }

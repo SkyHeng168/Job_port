@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +17,12 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private String secret_Key = "";
+    private final String secretKey;
 
-    public JwtService(){
-        try{
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey secretKey = keyGenerator.generateKey();
-            secret_Key = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-        }catch (NoSuchAlgorithmException noSuchAlgorithmException){
-            throw new RuntimeException(noSuchAlgorithmException);
+    public JwtService(@Value("${jwt.secret}") String secretKey) {
+        this.secretKey = secretKey;
+        if (this.secretKey == null || this.secretKey.isEmpty()) {
+            throw new IllegalStateException("JWT secret key must be configured");
         }
     }
     public String generateToken(String username){
@@ -33,13 +32,20 @@ public class JwtService {
                 .add(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() * 60 * 60 * 30))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 2))
                 .and()
                 .signWith(getKey())
                 .compact();
     }
+
+    @PostConstruct
+    public void testKey() {
+        System.out.println("JWT Secret Key: " + secretKey);
+    }
+
+
     private SecretKey getKey(){
-        byte[] keyBytes = Decoders.BASE64.decode(secret_Key);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

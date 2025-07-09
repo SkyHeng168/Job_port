@@ -7,6 +7,6 @@ public enum AdminRole {
     ADMINISTRATOR;
 
     public String getValueAdminRole() {
-        return "ROLE_" + this.name();
+        return this.name();
     }
 }

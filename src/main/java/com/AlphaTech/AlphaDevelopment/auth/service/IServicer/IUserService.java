@@ -9,4 +9,6 @@ import java.util.List;
 public interface IUserService {
     List<UserRespond> getAllUsers();
     UserRespond createUser(UserRequest userRequest) throws IOException;
+    UserRespond updateUser(Long id, UserRequest userRequest) throws IOException;
+    void deleteUser(Long id) throws IOException;
 }

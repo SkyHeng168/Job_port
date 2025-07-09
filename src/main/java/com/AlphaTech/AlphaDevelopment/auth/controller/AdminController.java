@@ -22,6 +22,18 @@ public class AdminController {
         return new ResponseEntity<>(adminRespondList, HttpStatus.OK);
     }
 
+    @GetMapping("/username/{username}")
+    public ResponseEntity<AdminRespond> getAdminByUsername(@PathVariable String username) {
+        AdminRespond adminRespond = adminService.getAdminByUsername(username);
+        return ResponseEntity.status(HttpStatus.OK).body(adminRespond);
+    }
+
+    @GetMapping("/role/{role}")
+    public ResponseEntity<AdminRespond> getAdminByRoleIgnoreCase(@PathVariable String role) {
+        AdminRespond adminRespond = adminService.getAdminByRole(role);
+        return ResponseEntity.status(HttpStatus.OK).body(adminRespond);
+    }
+
     @PostMapping
     public ResponseEntity<AdminRespond> insertAdmin(@RequestBody AdminRequest adminRequest) {
         AdminRespond adminRespond = adminService.createAdmin(adminRequest);
@@ -38,5 +50,11 @@ public class AdminController {
     public ResponseEntity<AdminRespond> deleteAdmin(@PathVariable Long id) {
         adminService.deleteAdmin(id);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AdminRespond> getAdminById(@PathVariable Long id) {
+        AdminRespond adminRespond = adminService.getAdmin(id);
+        return ResponseEntity.status(HttpStatus.OK).body(adminRespond);
     }
 }

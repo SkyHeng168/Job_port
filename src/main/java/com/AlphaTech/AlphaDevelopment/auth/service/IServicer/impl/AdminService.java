@@ -2,6 +2,7 @@ package com.AlphaTech.AlphaDevelopment.auth.service.IServicer.impl;
 
 import com.AlphaTech.AlphaDevelopment.auth.authDto.AdminDto.AdminRequest;
 import com.AlphaTech.AlphaDevelopment.auth.authDto.AdminDto.AdminRespond;
+import com.AlphaTech.AlphaDevelopment.auth.enums.AdminRole;
 import com.AlphaTech.AlphaDevelopment.auth.repository.AdminRepository;
 import com.AlphaTech.AlphaDevelopment.auth.service.IServicer.IAdminService;
 import com.AlphaTech.AlphaDevelopment.excption.customException.ResourceAlreadyExistsException;
@@ -68,6 +69,35 @@ public class AdminService implements IAdminService {
         Admin findAdmin = adminRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin Not Found"));
         adminRepository.delete(findAdmin);
+    }
+
+    @Override
+    public AdminRespond getAdminByUsername(String username) {
+        Admin admin = adminRepository.findByUsernameIgnoreCase(username);
+        if (admin == null) {
+            throw new ResourceNotFoundException("Admin Not Found");
+        }
+        return AdminRespond.convert(admin);
+    }
+
+    @Override
+    public AdminRespond getAdminByRole(String role) {
+        AdminRole adminRole;
+        try {
+            adminRole = AdminRole.valueOf(role.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResourceNotFoundException("Invalid role: " + role);
+        }
+        Admin admin = adminRepository.findByRole(adminRole)
+                .orElseThrow(()-> new ResourceNotFoundException("Admin Not Found"));
+        return AdminRespond.convert(admin);
+    }
+
+    @Override
+    public AdminRespond getAdmin(Long id) {
+        Admin admin = adminRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Admin Not Found"));
+        return AdminRespond.convert(admin);
     }
 
     @Override

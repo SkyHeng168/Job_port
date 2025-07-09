@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,6 +60,40 @@ public class UserService implements IUserService {
         User savedUser = userRepository.save(user);
 
         return UserRespond.convertToUser(savedUser);
+    }
+
+    @Override
+    public UserRespond updateUser(Long id, UserRequest userRequest) throws IOException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+
+        user.setFirstName(userRequest.firstName());
+        user.setLastName(userRequest.lastName());
+        user.setProfile(SaveProfile(userRequest.profile()));
+        user.setGender(userRequest.gender());
+        user.setBirthDate(userRequest.birthDate());
+        user.setPhoneNumber(userRequest.phoneNumber());
+        user.setEmail(userRequest.email());
+        user.setPassword(encoder.encode(userRequest.password()));
+        user.setRole(userRequest.role());
+        user.setUpdatedAt(LocalDateTime.now());
+        User savedUser = userRepository.save(user);
+
+        return UserRespond.convertToUser(savedUser);
+    }
+
+    @Override
+    public void deleteUser(Long id) throws IOException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+        if (user.getProfile() != null && !user.getProfile().isEmpty()) {
+            final String profilePath = "uploads/user_profile";
+            Path pathfile = Paths.get(profilePath).resolve(user.getProfile());
+            if (Files.exists(pathfile)) {
+                Files.delete(pathfile);
+            }
+        }
+        userRepository.delete(user);
     }
 
     private String SaveProfile(MultipartFile multipartFile) throws IOException {
